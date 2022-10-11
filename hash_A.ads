@@ -1,0 +1,48 @@
+with Ada.Text_IO; use Ada.Text_IO;
+with Direct_IO;
+with Ada.Unchecked_Conversion;
+
+package hash_A is
+   package fIO is new Float_IO(Float);
+   use fIO;
+   subtype hRead is String(1..18);
+   subtype hElement is String(1..16);
+   subtype slice is String(1..4);
+   subtype square is String(1..8);
+   subtype outStr is String(1..25);
+   type Unsigned_64 is mod 2**64;
+   type hashRecord is record
+      Item : hElement;
+      loc : Integer;
+      probes : Integer := 1;
+   end record;
+   package HIO is new Direct_IO(hRead);
+   use HIO;
+   package OIO is new Direct_IO(hashRecord);
+   use OIO;
+   type hashTable is array(Integer range <>) of hashRecord;
+   type probe is (linear, random);
+   type hash is (mine, yours);
+   type implement is (memory, file);
+   function mystr2Uns is new Ada.Unchecked_Conversion(slice, Unsigned_64);
+   function squareStr is new Ada.Unchecked_Conversion(square, Unsigned_64);
+   function char2Uns is new Ada.Unchecked_Conversion(character, Unsigned_64);
+   function uns2Int is new Ada.Unchecked_Conversion(Unsigned_64, Integer);
+   function Int2Uns is new Ada.Unchecked_Conversion(Integer, Unsigned_64);
+   procedure whichHash(inFile: String; outFile: String; size: Integer;
+                       currCapacity: Float; probeType: probe; hashType: hash;
+                       loc: implement);
+   procedure mainMem(inFile: String; size: Integer; currCapacity: Float;
+                     probeType: probe; hashType: hash);
+   procedure randAcc(inFile: String; outFile: String; size: Integer;
+                     currCapacity: Float; probeType: probe; hashType: hash);
+   procedure avg(input: HIO.File_Type; storage: OIO.File_Type;
+                    myTable: hashTable; lower: Integer; upper: Integer;
+                    size: Integer; probeType: probe; hashType: hash;
+                    location: implement);
+   procedure theoretical(size: Integer; keys: Integer; probeType: probe);
+   function HshKey(Item: hElement) return Integer;
+   function myHash(Item: hElement; TS: Integer) return Integer;
+   eTable: hashTable(1..2);
+   eFile: OIO.File_Type;
+end hash_A;
